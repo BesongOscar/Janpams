@@ -1,0 +1,199 @@
+stages:
+  - test
+  - android-dev-build
+  - betatesting
+  - ios-dev-device
+  - ios-dev
+  - ios-preview
+  - testflight
+  - android-preview-device
+
+variables:
+  NODE_VERSION: "21.1.0"
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - mobile/node_modules/
+    - .npm/
+
+lint-and-test-mobile:
+  stage: test
+  image: node:${NODE_VERSION}
+  before_script:
+    - echo "Using Node.js version:"
+    - node -v
+    - corepack enable  # Ensure Yarn is available
+    - yarn -v          # Check if Yarn is installed
+  script:
+    - yarn install
+    - yarn lint
+    - yarn test -u
+  timeout: 30m
+  only:
+    - merge_requests
+    - main
+    - dev
+
+android-dev-build:
+  stage: android-dev-build
+  image: node:${NODE_VERSION}
+  before_script:
+    - echo "Using Node.js version:"
+    - node -v
+    - echo "Checking if Yarn is installed..."
+    - yarn -v  # Check if Yarn is installed
+    - echo "Checking if npm is installed..."
+    - npm -v   # Check if npm is installed
+    - yarn cache clean  # Clean yarn cache to avoid potential issues
+    - if [ -z "$EXPO_TOKEN" ]; then echo "You must provide EXPO_TOKEN secret for EAS deployment"; exit 1; fi
+    - yarn install --cache-folder .yarn
+  script:
+    - echo "Setting up Expo..."
+    - npm install -g expo-cli
+    - npx expo install
+    # - apk add --no-cache bash
+    - npx eas-cli build --platform android --profile development --non-interactive --no-wait
+  only:
+    - /^build\/android\/.*$/
+  timeout: 30m 
+
+betatesting:
+  stage: betatesting
+  image: node:${NODE_VERSION}
+  before_script:
+    - echo "Using Node.js version:"
+    - node -v
+    - echo "Checking if Yarn is installed..."
+    - yarn -v  # Check if Yarn is installed
+    - echo "Checking if npm is installed..."
+    - npm -v   # Check if npm is installed
+    - yarn cache clean  # Clean yarn cache to avoid potential issues
+    - if [ -z "$EXPO_TOKEN" ]; then echo "You must provide EXPO_TOKEN secret for EAS deployment"; exit 1; fi
+    - yarn install --cache-folder .yarn
+  script:
+    - echo "Setting up Expo..."
+    - npm install -g expo-cli
+    - npx expo install
+    # - apk add --no-cache bash
+    - npx eas-cli build --platform android --profile production --auto-submit --non-interactive --no-wait
+  only:
+    - /^release\/.*$/
+  timeout: 30m 
+
+ios-dev-device:
+  stage: ios-dev-device
+  image: node:${NODE_VERSION}
+  before_script:
+    - echo "Using Node.js version:"
+    - node -v
+    - echo "Checking if Yarn is installed..."
+    - yarn -v  # Check if Yarn is installed
+    - echo "Checking if npm is installed..."
+    - npm -v   # Check if npm is installed
+    - yarn cache clean  # Clean yarn cache to avoid potential issues
+    - if [ -z "$EXPO_TOKEN" ]; then echo "You must provide EXPO_TOKEN secret for EAS deployment"; exit 1; fi
+    - yarn install --cache-folder .yarn
+  script:
+    - echo "Setting up Expo..."
+    - npm install -g expo-cli
+    - npx expo install
+    # - apk add --no-cache bash
+    - npx eas-cli build --platform ios --profile dev-device --non-interactive --no-wait
+  only:
+    - /^build\/ios-device\/.*$/
+  timeout: 30m 
+
+ios-dev:
+  stage: ios-dev
+  image: node:${NODE_VERSION}
+  before_script:
+    - echo "Using Node.js version:"
+    - node -v
+    - echo "Checking if Yarn is installed..."
+    - yarn -v  # Check if Yarn is installed
+    - echo "Checking if npm is installed..."
+    - npm -v   # Check if npm is installed
+    - yarn cache clean  # Clean yarn cache to avoid potential issues
+    - if [ -z "$EXPO_TOKEN" ]; then echo "You must provide EXPO_TOKEN secret for EAS deployment"; exit 1; fi
+    - yarn install --cache-folder .yarn
+  script:
+    - echo "Setting up Expo..."
+    - npm install -g expo-cli
+    - npx expo install
+    # - apk add --no-cache bash
+    - npx eas-cli build --platform ios --profile development --non-interactive --no-wait
+  only:
+    - /^build\/ios\/.*$/
+  timeout: 30m 
+
+android-preview-device:
+  stage: android-preview-device
+  image: node:${NODE_VERSION}
+  before_script:
+    - echo "Using Node.js version:"
+    - node -v
+    - echo "Checking if Yarn is installed..."
+    - yarn -v  # Check if Yarn is installed
+    - echo "Checking if npm is installed..."
+    - npm -v   # Check if npm is installed
+    - yarn cache clean  # Clean yarn cache to avoid potential issues
+    - if [ -z "$EXPO_TOKEN" ]; then echo "You must provide EXPO_TOKEN secret for EAS deployment"; exit 1; fi
+    - yarn install --cache-folder .yarn
+  script:
+    - echo "Setting up Expo..."
+    - npm install -g expo-cli
+    - npx expo install
+    # - apk add --no-cache bash
+    - npx eas-cli build --platform android --profile preview-device --non-interactive --no-wait
+  only:
+    - /^preview-device\/android\/.*$/
+  timeout: 30m 
+
+ios-preview:
+  stage: ios-preview
+  image: node:${NODE_VERSION}
+  before_script:
+    - echo "Using Node.js version:"
+    - node -v
+    - echo "Checking if Yarn is installed..."
+    - yarn -v  # Check if Yarn is installed
+    - echo "Checking if npm is installed..."
+    - npm -v   # Check if npm is installed
+    - yarn cache clean  # Clean yarn cache to avoid potential issues
+    - if [ -z "$EXPO_TOKEN" ]; then echo "You must provide EXPO_TOKEN secret for EAS deployment"; exit 1; fi
+    - yarn install --cache-folder .yarn
+  script:
+    - echo "Setting up Expo..."
+    - npm install -g expo-cli
+    - npx expo install
+    # - apk add --no-cache bash
+    - npx eas-cli build --platform ios --profile preview --non-interactive --no-wait
+  only:
+    - /^preview\/ios\/.*$/
+  timeout: 30m 
+
+testflight:
+  stage: testflight
+  image: node:${NODE_VERSION}
+  before_script:
+    - echo "Using Node.js version:"
+    - node -v
+    - echo "Checking if Yarn is installed..."
+    - yarn -v  # Check if Yarn is installed
+    - echo "Checking if npm is installed..."
+    - npm -v   # Check if npm is installed
+    - yarn cache clean  # Clean yarn cache to avoid potential issues
+    - if [ -z "$EXPO_TOKEN" ]; then echo "You must provide EXPO_TOKEN secret for EAS deployment"; exit 1; fi
+    # - if [ -z "$EXPO_APPLE_APP_SPECIFIC_PASSWORD" ]; then echo "You must provide EXPO_APPLE_APP_SPECIFIC_PASSWORD secret for EAS deployment"; exit 1; fi
+    # - if [ -z "$EXPO_APPLE_ID" ]; then echo "You must provide EXPO_APPLE_ID secret for EAS deployment"; exit 1; fi
+    - yarn install --cache-folder .yarn
+  script:
+    - echo "Setting up Expo..."
+    - npm install -g expo-cli
+    - npx expo install
+    # - apk add --no-cache bash
+    - npx eas-cli build --platform ios --profile production --auto-submit --non-interactive --no-wait
+  only:
+    - /^release\/.*$/
+  timeout: 30m 

@@ -1,0 +1,122 @@
+[
+  {
+    "English": "Apartment",
+    "Abbr (EN)": "Apt",
+    "French": "Appartement",
+    "Abbr (FR)": "App",
+    "Portuguese": "Apartamento",
+    "Abbr (PT)": "Apt"
+  },
+  {
+    "English": "Flat",
+    "Abbr (EN)": "Flat",
+    "French": "Appartement",
+    "Abbr (FR)": "App",
+    "Portuguese": "Apartamento",
+    "Abbr (PT)": "Apt"
+  },
+  {
+    "English": "Suite",
+    "Abbr (EN)": "Ste",
+    "French": "Suite",
+    "Abbr (FR)": "Ste",
+    "Portuguese": "Suíte",
+    "Abbr (PT)": "Ste"
+  },
+  {
+    "English": "Unit",
+    "Abbr (EN)": "Unit",
+    "French": "Unité",
+    "Abbr (FR)": "Un",
+    "Portuguese": "Unidade",
+    "Abbr (PT)": "Un"
+  },
+  {
+    "English": "Room",
+    "Abbr (EN)": "Rm",
+    "French": "Chambre",
+    "Abbr (FR)": "Ch",
+    "Portuguese": "Quarto",
+    "Abbr (PT)": "Qt"
+  },
+  {
+    "English": "Building",
+    "Abbr (EN)": "Bldg",
+    "French": "Bâtiment",
+    "Abbr (FR)": "Bât",
+    "Portuguese": "Edifício",
+    "Abbr (PT)": "Ed"
+  },
+  {
+    "English": "Floor",
+    "Abbr (EN)": "Fl",
+    "French": "Étage",
+    "Abbr (FR)": "Ét",
+    "Portuguese": "Andar",
+    "Abbr (PT)": "And"
+  },
+  {
+    "English": "Department",
+    "Abbr (EN)": "Dept",
+    "French": "Département",
+    "Abbr (FR)": "Dép",
+    "Portuguese": "Departamento",
+    "Abbr (PT)": "Dep"
+  },
+  {
+    "English": "Office",
+    "Abbr (EN)": "Off",
+    "French": "Bureau",
+    "Abbr (FR)": "Bur",
+    "Portuguese": "Escritório",
+    "Abbr (PT)": "Esc"
+  },
+  {
+    "English": "Block",
+    "Abbr (EN)": "Blk",
+    "French": "Bloc",
+    "Abbr (FR)": "Bl",
+    "Portuguese": "Bloco",
+    "Abbr (PT)": "Bl"
+  },
+  {
+    "English": "Wing",
+    "Abbr (EN)": "Wing",
+    "French": "Aile",
+    "Abbr (FR)": "Aile",
+    "Portuguese": "Ala",
+    "Abbr (PT)": "Ala"
+  },
+  {
+    "English": "Hall / Dorm",
+    "Abbr (EN)": "Hall",
+    "French": "Salle / Foyer",
+    "Abbr (FR)": "Salle",
+    "Portuguese": "Sala / Dormitório",
+    "Abbr (PT)": "Sala"
+  },
+  {
+    "English": "Shop / Store",
+    "Abbr (EN)": "Shop",
+    "French": "Magasin",
+    "Abbr (FR)": "Mag",
+    "Portuguese": "Loja",
+    "Abbr (PT)": "Lj"
+  },
+  {
+    "English": "Kiosk / Booth",
+    "Abbr (EN)": "Kiosk",
+    "French": "Kiosque",
+    "Abbr (FR)": "Kios",
+    "Portuguese": "Quiosque",
+    "Abbr (PT)": "Qsc"
+  },
+  {
+    "English": "Bay / Dock",
+    "Abbr (EN)": "Bay",
+    "French": "Baie / Quai",
+    "Abbr (FR)": "Baie",
+    "Portuguese": "Baía / Doca",
+    "Abbr (PT)": "Baía"
+  }
+]

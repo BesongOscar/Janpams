@@ -1,0 +1,98 @@
+[
+  {
+    "English": "Owner",
+    "Abbr (EN)": "Own",
+    "French": "Propriétaire",
+    "Abbr (FR)": "Prop",
+    "Portuguese": "Proprietário",
+    "Abbr (PT)": "Prop"
+  },
+  {
+    "English": "Manager",
+    "Abbr (EN)": "Mgr",
+    "French": "Gestionnaire",
+    "Abbr (FR)": "Gest",
+    "Portuguese": "Gerente",
+    "Abbr (PT)": "Ger"
+  },
+  {
+    "English": "Employee",
+    "Abbr (EN)": "Emp",
+    "French": "Employé",
+    "Abbr (FR)": "Emp",
+    "Portuguese": "Funcionário",
+    "Abbr (PT)": "Func"
+  },
+  {
+    "English": "Vendor",
+    "Abbr (EN)": "Vend",
+    "French": "Vendeur",
+    "Abbr (FR)": "Vend",
+    "Portuguese": "Fornecedor",
+    "Abbr (PT)": "Forn"
+  },
+  {
+    "English": "Visitor",
+    "Abbr (EN)": "Vis",
+    "French": "Visiteur",
+    "Abbr (FR)": "Vis",
+    "Portuguese": "Visitante",
+    "Abbr (PT)": "Visit"
+  },
+  {
+    "English": "Resident",
+    "Abbr (EN)": "Res",
+    "French": "Résident",
+    "Abbr (FR)": "Rés",
+    "Portuguese": "Residente",
+    "Abbr (PT)": "Res"
+  },
+  {
+    "English": "Customer",
+    "Abbr (EN)": "Cust",
+    "French": "Client",
+    "Abbr (FR)": "Cli",
+    "Portuguese": "Cliente",
+    "Abbr (PT)": "Cli"
+  },
+  {
+    "English": "Delivery Personnel",
+    "Abbr (EN)": "Del",
+    "French": "Personnel de livraison",
+    "Abbr (FR)": "Pers Liv",
+    "Portuguese": "Pessoal de entrega",
+    "Abbr (PT)": "Pess Ent"
+  },
+  {
+    "English": "Utility Worker",
+    "Abbr (EN)": "Util",
+    "French": "Travailleur des services publics",
+    "Abbr (FR)": "Trav Serv",
+    "Portuguese": "Trabalhador de serviços públicos",
+    "Abbr (PT)": "Trab Serv"
+  },
+  {
+    "English": "Emergency Personnel",
+    "Abbr (EN)": "Emerg",
+    "French": "Personnel d'urgence",
+    "Abbr (FR)": "Pers Urg",
+    "Portuguese": "Pessoal de emergência",
+    "Abbr (PT)": "Pess Emerg"
+  },
+  {
+    "English": "Real Estate Agent",
+    "Abbr (EN)": "RE Agent",
+    "French": "Agent immobilier",
+    "Abbr (FR)": "Agt Imm",
+    "Portuguese": "Corretor de imóveis",
+    "Abbr (PT)": "Corr Imóv"
+  },
+  {
+    "English": "City Official",
+    "Abbr (EN)": "City Off",
+    "French": "Fonctionnaire municipal",
+    "Abbr (FR)": "Fonc Mun",
+    "Portuguese": "Funcionário municipal",
+    "Abbr (PT)": "Func Mun"
+  }
+]

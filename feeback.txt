@@ -1,0 +1,79 @@
+17/02/2025
+- Email should be optional
+- Image picker doesn't work on samsungs
+
+10/03/2025
+- Adjust the modal 
+- Fix the shadow on the inputs for the add unit address modal
+- Check prototype for the add unit information popup
+- When adding unit information, extention or unit type or unit number must be provided
+- Add the logo
+- Reduce spacing between components on the popup modal (Make exactly as on design)
+- Check fontfamily
+- add the verify phone number screen after the reset pin code
+
+16/03/2025
+-  Autopopulate phone number after sign up (also after forgot pin)
+-  Autopuplate email after sign up (also after reset password)
+
+-  (extra): Add a button which says Login credentials (click on either password or pin to show the password or pin input fields)
+-  Add a remember me box to remember their phone number (optionally)
+-  (extra): There should be a popup for signup with facebook, google, or create Account (optionally Add a google or facebook options under the `Don't have an account text`)
+-  Add the map icon next to the country code for phone number inputs (DONE)
+
+20/03/2025
+- Users should rather search an address, before adding as their home address (unless the address does not exist, then they should go to the form to create it)
+- clicking let's go opens the drawer
+- Check MapMe integration
+- Remove the contact settings
+- Remove share address
+- Remove the notification option
+- Get rid of the let's go button, have 2 icons 1 to share and 1 to navigate
+- Add the option to share, navigate and replace a home address
+- Add a section for saved addresses
+- (**Extra**) Add a nearby addresses so that users can share or add unit of a nearby address (Just in case they are a bit out of the radius of the address they are finding)
+
+ENDPOINTS NEEDED:
+- User's Notifications 
+- Delete user account
+- Save an address
+
+
+05/04/2025
+
+- Format the address clearly in the format 
+    *Address*: {address_name},
+    *coordintates*: {address_link}
+
+- Verify address sharing on other google apps (HERE WE GO, MAP ME & WAYS) - Navigation doesn't work with MapMe at all
+
+- Change the `Jango Addresses` section to `Saved addresses`
+
+- When a user searches on the `Saved addresses` 
+
+- When a user searches an address, it should show them a popup asking them to ask an Alias (optionally)
+
+- There should be an edit button which allows the user to Edit the Alias (and a search box where they can search for a different address) and a delete button which allows the user to delete this Alias
+
+- Prefill the search on the replace addresss screen with the existing home address
+
+- Reduce the space between the addresses
+
+(**extra**)
+- Users should be able to create an alias for a place (give it a name you are familiar with to easily navigate to. This is user specific)
+
+12/04/2025
+
+- We need to be able to parse the addresses labels to other applications
+
+
+
+### UPDATED ENDPOINTS
+
+1. sign up (not working correctly due to image issue)
+2. Login - working fine
+3. Resend OTP
+4. Verify OTP
+6. Forgot PIN
+7. Reset pincode 
+8. 

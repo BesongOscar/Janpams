@@ -1,0 +1,170 @@
+import { Colors } from '@/constants';
+import { StyleSheet } from 'react-native';
+
+export const signupStyles = StyleSheet.create({
+  avatarContainer: {
+    alignSelf: 'center',
+    width: 81,
+    height: 81,
+    borderRadius: 56,
+    position: 'relative',
+    borderWidth: 1,
+    borderColor: Colors.primary['500'],
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.light['grey'],
+  },
+  avatar: {
+    width: 56,
+    height: 56,
+  },
+  profileImage: {
+    width: 64,
+    height: 64,
+    borderRadius: 64,
+  },
+  haderTextContainer: {
+    marginVertical: 12,
+    alignItems: 'center',
+    rowGap: 4,
+    width: 300,
+    alignSelf: 'center',
+  },
+  headerText: {
+    textAlign: 'center',
+  },
+  phoneNumberText: {
+    color: Colors.primary['500'],
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  bottomLinkContainer: {
+    height: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    columnGap: 8,
+    paddingHorizontal: 28,
+  },
+  inputsContainer: {
+    marginTop: 16,
+    paddingBottom: 96,
+    rowGap: 8,
+  },
+  cameraContainer: {
+    position: 'absolute',
+    top: '80%',
+    left: '35%',
+    width: 24,
+    height: 24,
+    borderRadius: 24,
+    backgroundColor: Colors.light['10'],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  linkText: {
+    fontWeight: '500',
+    color: Colors.primary['500'],
+  },
+  pinCodeContainerStyle: {
+    height: 56,
+    width: 48,
+    backgroundColor: Colors.light[10],
+    borderWidth: 0,
+    borderRadius: 4,
+  },
+  focusedPinCodeContainerStyle: {
+    borderWidth: 1,
+    borderColor: Colors.primary[500],
+  },
+  pinContainerStyle: {
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    // columnGap: 32,
+  },
+  emailVerificationTextContainer: {
+    backgroundColor: Colors.primary['10'],
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 4,
+    padding: 28,
+    marginVertical: 24,
+  },
+  emailVerificationText: {
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: '#6200EE',
+    padding: 12,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  modal: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    height: 196,
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
+    zIndex: 5,
+  },
+  modalContent: {
+    top: 40,
+    height: 196,
+    paddingHorizontal: 32,
+  },
+  uploadOptionsContainer: {
+    marginTop: 28,
+    rowGap: 12,
+  },
+  modalTitle: {
+    fontSize: 18,
+  },
+  uploadOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 20,
+    height: 32,
+    zIndex: 10,
+  },
+  uploadOptionText: {
+    fontSize: 16,
+  },
+  nodge: {
+    width: 40,
+    height: 5,
+    backgroundColor: '#ccc',
+    borderRadius: 3,
+    marginTop: 10,
+    position: 'absolute',
+    top: 10,
+    alignSelf: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+  },
+  topNav: {
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+  },
+  collapsibleContent: {
+    height: 400,
+    rowGap: 8,
+  },
+  height46: {
+    height: 46,
+  },
+});

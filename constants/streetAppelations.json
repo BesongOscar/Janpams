@@ -1,0 +1,178 @@
+[
+  {
+    "English": "Street",
+    "Abbr (EN)": "St",
+    "French": "Rue",
+    "Abbr (FR)": "R",
+    "Portuguese": "Rua",
+    "Abbr (PT)": "R"
+  },
+  {
+    "English": "Avenue",
+    "Abbr (EN)": "Ave",
+    "French": "Avenue",
+    "Abbr (FR)": "Av",
+    "Portuguese": "Avenida",
+    "Abbr (PT)": "Av"
+  },
+  {
+    "English": "Boulevard",
+    "Abbr (EN)": "Blvd",
+    "French": "Boulevard",
+    "Abbr (FR)": "Boul",
+    "Portuguese": "Boulevard \/ Alameda",
+    "Abbr (PT)": "Bv \/ Alm"
+  },
+  {
+    "English": "Road",
+    "Abbr (EN)": "Rd",
+    "French": "Route",
+    "Abbr (FR)": "Rte",
+    "Portuguese": "Estrada",
+    "Abbr (PT)": "Est"
+  },
+  {
+    "English": "Lane",
+    "Abbr (EN)": "Ln",
+    "French": "Allée",
+    "Abbr (FR)": "All",
+    "Portuguese": "Travessa",
+    "Abbr (PT)": "Tv"
+  },
+  {
+    "English": "Drive",
+    "Abbr (EN)": "Dr",
+    "French": "Chemin",
+    "Abbr (FR)": "Ch",
+    "Portuguese": "Via \/ Caminho",
+    "Abbr (PT)": "Via \/ Cam"
+  },
+  {
+    "English": "Court",
+    "Abbr (EN)": "Ct",
+    "French": "Cour",
+    "Abbr (FR)": "Cr",
+    "Portuguese": "Pátio \/ Largo",
+    "Abbr (PT)": "Pt \/ Lg"
+  },
+  {
+    "English": "Place",
+    "Abbr (EN)": "Pl",
+    "French": "Place",
+    "Abbr (FR)": "Pl",
+    "Portuguese": "Praça",
+    "Abbr (PT)": "Pc"
+  },
+  {
+    "English": "Terrace",
+    "Abbr (EN)": "Ter",
+    "French": "Terrasse",
+    "Abbr (FR)": "Ter",
+    "Portuguese": "Terraço",
+    "Abbr (PT)": "Trc"
+  },
+  {
+    "English": "Circle",
+    "Abbr (EN)": "Cir",
+    "French": "Cercle",
+    "Abbr (FR)": "Cir",
+    "Portuguese": "Rotunda",
+    "Abbr (PT)": "Rt"
+  },
+  {
+    "English": "Crescent",
+    "Abbr (EN)": "Cres",
+    "French": "Croissant",
+    "Abbr (FR)": "Crois",
+    "Portuguese": "Crescente",
+    "Abbr (PT)": "Crs"
+  },
+  {
+    "English": "Square",
+    "Abbr (EN)": "Sq",
+    "French": "Carré",
+    "Abbr (FR)": "Car",
+    "Portuguese": "Largo \/ Praça",
+    "Abbr (PT)": "Lg \/ Pc"
+  },
+  {
+    "English": "Parkway",
+    "Abbr (EN)": "Pkwy",
+    "French": "Promenade",
+    "Abbr (FR)": "Prom",
+    "Portuguese": "Parque \/ Alameda",
+    "Abbr (PT)": "Pq \/ Alm"
+  },
+  {
+    "English": "Trail",
+    "Abbr (EN)": "Trl",
+    "French": "Sentier",
+    "Abbr (FR)": "Sent",
+    "Portuguese": "Trilha \/ Caminho",
+    "Abbr (PT)": "Trl \/ Cam"
+  },
+  {
+    "English": "Way",
+    "Abbr (EN)": "Way",
+    "French": "Voie",
+    "Abbr (FR)": "Voie",
+    "Portuguese": "Caminho \/ Via",
+    "Abbr (PT)": "Cam \/ Via"
+  },
+  {
+    "English": "Alley",
+    "Abbr (EN)": "Aly",
+    "French": "Ruelle",
+    "Abbr (FR)": "Rle",
+    "Portuguese": "Beco",
+    "Abbr (PT)": "Bco"
+  },
+  {
+    "English": "Highway",
+    "Abbr (EN)": "Hwy",
+    "French": "Autoroute",
+    "Abbr (FR)": "Aut",
+    "Portuguese": "Autoestrada",
+    "Abbr (PT)": "AE"
+  },
+  {
+    "English": "Bypass",
+    "Abbr (EN)": "Byp",
+    "French": "Contournement",
+    "Abbr (FR)": "Cont",
+    "Portuguese": "Desvio",
+    "Abbr (PT)": "Dsv"
+  },
+  {
+    "English": "Quay",
+    "Abbr (EN)": "Qy",
+    "French": "Quai",
+    "Abbr (FR)": "Quai",
+    "Portuguese": "Cais",
+    "Abbr (PT)": "Cais"
+  },
+  {
+    "English": "Mews",
+    "Abbr (EN)": "Mews",
+    "French": "Passage privé \/ Mews",
+    "Abbr (FR)": "Mews",
+    "Portuguese": "Viela \/ Pátio",
+    "Abbr (PT)": "Vl \/ Pt"
+  },
+  {
+    "English": "Esplanade",
+    "Abbr (EN)": "Esp",
+    "French": "Esplanade",
+    "Abbr (FR)": "Esp",
+    "Portuguese": "Esplanada",
+    "Abbr (PT)": "Esp"
+  },
+  {
+    "English": "Walk",
+    "Abbr (EN)": "Walk",
+    "French": "Promenade piétonne",
+    "Abbr (FR)": "Prm \/ All",
+    "Portuguese": "Passarela \/ Caminhada",
+    "Abbr (PT)": "Psl \/ Cam"
+  }
+]

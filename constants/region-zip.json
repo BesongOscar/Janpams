@@ -1,0 +1,106 @@
+{
+  "United States": {
+    "region": { "en": "State", "fr": "État", "pt": "Estado" },
+    "zip": { "en": "Zip Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Canada": {
+    "region": { "en": "Province", "fr": "Province", "pt": "Província" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Cameroon": {
+    "region": { "en": "Region", "fr": "Région", "pt": "Região" },
+    "zip": { "en": "Quarter", "fr": "Quartier", "pt": "Bairro" }
+  },
+  "Nigeria": {
+    "region": { "en": "States", "fr": "États", "pt": "Estados" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Kenya": {
+    "region": { "en": "County", "fr": "Comté", "pt": "Condado" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "South Africa": {
+    "region": { "en": "Province", "fr": "Province", "pt": "Província" },
+    "zip": { "en": "Postcode", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "India": {
+    "region": { "en": "States", "fr": "États", "pt": "Estados" },
+    "zip": { "en": "PIN Code", "fr": "Code PIN", "pt": "Código PIN" }
+  },
+  "China": {
+    "region": { "en": "Province", "fr": "Province", "pt": "Província" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Indonesia": {
+    "region": { "en": "Province", "fr": "Province", "pt": "Província" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Japan": {
+    "region": { "en": "Prefecture", "fr": "Préfecture", "pt": "Prefeitura" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "United Kingdom": {
+    "region": { "en": "County", "fr": "Comté", "pt": "Condado" },
+    "zip": { "en": "Postcode", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "France": {
+    "region": { "en": "Region", "fr": "Région", "pt": "Região" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Germany": {
+    "region": { "en": "State", "fr": "État", "pt": "Estado" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Italy": {
+    "region": { "en": "Region", "fr": "Région", "pt": "Região" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Spain": {
+    "region": { "en": "Community", "fr": "Communauté", "pt": "Comunidade" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Belgium": {
+    "region": { "en": "Region", "fr": "Région", "pt": "Região" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Netherlands": {
+    "region": { "en": "Provinces", "fr": "Provinces", "pt": "Províncias" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Sweden": {
+    "region": { "en": "County", "fr": "Comté", "pt": "Condado" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Brazil": {
+    "region": { "en": "States", "fr": "États", "pt": "Estados" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Mexico": {
+    "region": { "en": "States", "fr": "États", "pt": "Estados" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Argentina": {
+    "region": { "en": "Province", "fr": "Province", "pt": "Província" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Australia": {
+    "region": { "en": "States", "fr": "États", "pt": "Estados" },
+    "zip": { "en": "Postcode", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "New Zealand": {
+    "region": { "en": "Region", "fr": "Région", "pt": "Região" },
+    "zip": { "en": "Postcode", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Colombia": {
+    "region": { "en": "Department", "fr": "Département", "pt": "Departamento" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "Philippines": {
+    "region": { "en": "Region", "fr": "Région", "pt": "Região" },
+    "zip": { "en": "Post Code", "fr": "Code postal", "pt": "Código Postal" }
+  },
+  "default": {
+    "region": { "en": "Region", "fr": "Région", "pt": "Região" },
+    "zip": { "en": "Neighborhood", "fr": "Quartier", "pt": "Bairro" }
+  }
+}

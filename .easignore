@@ -1,0 +1,13 @@
+apps/core/mbukanji-maps-glopams
+apps/marketing/glopams-website
+docs/
+*.md
+!README.md
+android/.cxx
+android/build
+android/.gradle
+android/app/build
+.env.local
+.env.*.local
+node_modules
+.git

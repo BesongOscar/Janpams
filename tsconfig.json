@@ -1,0 +1,26 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "strict": true,
+    "paths": {
+      "@/*": ["./*"],
+      "@janpams/core": ["../../../packages/core/src"],
+      "@janpams/core/navigation": ["../../../packages/core/src/navigation/index"],
+      "@janpams/core/pluscode": ["../../../packages/core/src/pluscode/index"],
+      "@janpams/core/address": ["../../../packages/core/src/address/index"],
+      "@janpams/core/geocoding": ["../../../packages/core/src/geocoding/index"],
+      "@janpams/core/streets": ["../../../packages/core/src/streets/index"],
+      "@janpams/core/qr": ["../../../packages/core/src/qr/index"]
+    },
+    "jsx": "react",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ]
+}
