@@ -5,13 +5,15 @@ import { tabLayoutStyles as styles } from '@/styles';
 
 import i18n from '../../i18n';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Context, ContextType } from '../_layout';
+import { Context, SessionContext } from '../_layout';
 import { useBottomSheet } from '@/contexts/BottomSheetContext';
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { lang, user, isAuthLoading } = useContext(Context) as ContextType;
+  const { lang, user } = useContext(Context)!;
+  const sessionCtx = useContext(SessionContext);
+  const isAuthLoading = sessionCtx?.isAuthLoading ?? true;
   const { hideTabBar } = useBottomSheet();
 
   // Protected route gate: redirect to login if not authenticated and auth state is resolved

@@ -10,7 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import React, { createContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useState, useEffect, useRef, useMemo, useReducer, useCallback } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { DefaultTheme, PaperProvider } from 'react-native-paper';
 import { AppState, AppStateStatus, Platform } from 'react-native';
@@ -69,37 +69,44 @@ const client = new QueryClient({
   },
 });
 
-interface ContextInfo {
+/* ── AppContext: user + lang (broadly consumed) ── */
+interface AppContextInfo {
   user: User | undefined;
   lang: Language;
-  socialLoading: boolean;
-  isLoggedIn: boolean;
-  socialError: string | undefined;
-  /** Session expiry time (access token) in ms since epoch, or null. From JWT exp when token is set. */
-  sessionExpiresAt: number | null;
-  /** True while app is restoring session (index checking tokens/refresh). Used by protected route guard. */
-  isAuthLoading: boolean;
 }
-interface ContextSetters {
-  // eslint-disable-next-line no-unused-vars
+interface AppContextSetters {
   setUser: (user: User | undefined) => void;
-  // eslint-disable-next-line no-unused-vars
   setLang: (lang: Language) => void;
-  // eslint-disable-next-line no-unused-vars
-  setSocialLoading: (loading: boolean) => void;
-  // eslint-disable-next-line no-unused-vars
-  setIsLoggedIn: (loggedIn: boolean) => void;
-  // eslint-disable-next-line no-unused-vars
-  setSocialError: (error: string | undefined) => void;
-  // eslint-disable-next-line no-unused-vars
-  setSessionExpiresAt: (expiresAt: number | null) => void;
-  // eslint-disable-next-line no-unused-vars
-  setAuthLoading: (loading: boolean) => void;
+}
+interface AppContextType extends AppContextInfo, AppContextSetters {}
+export const Context = createContext<AppContextType | undefined>(undefined);
+export type ContextType = AppContextType;
+
+/* ── SessionContext: auth loading, login flag, expiry (narrow consumers) ── */
+type SessionAction =
+  | { type: 'SET_LOGGED_IN'; isLoggedIn: boolean }
+  | { type: 'SET_LOADING'; isAuthLoading: boolean }
+  | { type: 'SET_EXPIRY'; sessionExpiresAt: number | null };
+
+interface SessionContextType {
+  isLoggedIn: boolean;
+  isAuthLoading: boolean;
+  sessionExpiresAt: number | null;
+  setIsLoggedIn: (v: boolean) => void;
+  setSessionExpiresAt: (v: number | null) => void;
+  setAuthLoading: (v: boolean) => void;
 }
 
-export interface ContextType extends ContextInfo, ContextSetters {}
+function sessionReducer(state: { isLoggedIn: boolean; isAuthLoading: boolean; sessionExpiresAt: number | null }, action: SessionAction) {
+  switch (action.type) {
+    case 'SET_LOGGED_IN': return { ...state, isLoggedIn: action.isLoggedIn };
+    case 'SET_LOADING': return { ...state, isAuthLoading: action.isAuthLoading };
+    case 'SET_EXPIRY': return { ...state, sessionExpiresAt: action.sessionExpiresAt };
+    default: return state;
+  }
+}
 
-export const Context = createContext<ContextType | undefined>(undefined);
+export const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 /** DevTools plugin uses `window.location` — only mount on web (crashes native if invoked). */
 function ReactQueryDevToolsOnWeb({ queryClient }: { queryClient: QueryClient }) {
@@ -109,52 +116,25 @@ function ReactQueryDevToolsOnWeb({ queryClient }: { queryClient: QueryClient }) 
 
 function RootLayoutNav() {
   const router = useRouter();
-  const initialState: ContextInfo = {
-    user: undefined,
-    lang: 'en',
-    socialLoading: false,
+  const [user, setUser] = useState<User | undefined>(undefined);
+  const [lang, setLang] = useState<Language>('en');
+  const [sessionState, dispatch] = useReducer(sessionReducer, {
     isLoggedIn: false,
-    socialError: undefined,
-    sessionExpiresAt: null,
     isAuthLoading: true,
-  };
-  const [contextInfo, setContextInfo] = useState(initialState);
+    sessionExpiresAt: null,
+  });
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const backgroundTime = useRef<number | null>(null);
 
-  function setUser(user: User | undefined) {
-    setContextInfo(prevState => ({ ...prevState, user }));
-  }
-
-  function setLang(lang: Language) {
-    setContextInfo(prevState => ({ ...prevState, lang }));
-  }
-
-  const setIsLoggedIn = (isLoggedIn: boolean) => {
-    setContextInfo(prevState => ({ ...prevState, isLoggedIn }));
-  };
-  const setSocialLoading = (socialLoading: boolean) => {
-    setContextInfo(prevState => ({ ...prevState, socialLoading }));
-  };
-
-  const setSocialError = (socialError: string | undefined) => {
-    setContextInfo(prevState => ({ ...prevState, socialError }));
-  };
-  const setSessionExpiresAt = (sessionExpiresAt: number | null) => {
-    setContextInfo(prevState => ({ ...prevState, sessionExpiresAt }));
-  };
-  const setAuthLoading = (isAuthLoading: boolean) => {
-    setContextInfo(prevState => ({ ...prevState, isAuthLoading }));
-  };
-  const contextSetters: ContextSetters = {
-    setUser,
-    setLang,
-    setIsLoggedIn,
-    setSocialLoading,
-    setSocialError,
-    setSessionExpiresAt,
-    setAuthLoading,
-  };
+  const setIsLoggedIn = useCallback((isLoggedIn: boolean) => {
+    dispatch({ type: 'SET_LOGGED_IN', isLoggedIn });
+  }, []);
+  const setSessionExpiresAt = useCallback((sessionExpiresAt: number | null) => {
+    dispatch({ type: 'SET_EXPIRY', sessionExpiresAt });
+  }, []);
+  const setAuthLoading = useCallback((isAuthLoading: boolean) => {
+    dispatch({ type: 'SET_LOADING', isAuthLoading });
+  }, []);
 
   // Refs so auth-related effects run once; setters are recreated every render and would cause infinite re-runs.
   const sessionSettersRef = useRef({ setUser, setSessionExpiresAt, setAuthLoading });
@@ -226,8 +206,8 @@ function RootLayoutNav() {
 
   // When session expiry is set and user is logged in, check periodically and force re-login when expired
   useEffect(() => {
-    const { sessionExpiresAt: exp, user: u } = contextInfo;
-    if (exp == null || u == null) return;
+    const { sessionExpiresAt: exp } = sessionState;
+    if (exp == null || user == null) return;
     const check = () => {
       if (Date.now() >= exp) {
         performLogout().then(() => {
@@ -241,7 +221,7 @@ function RootLayoutNav() {
     check();
     const t = setInterval(check, 60_000);
     return () => clearInterval(t);
-  }, [contextInfo.sessionExpiresAt, contextInfo.user]);
+  }, [sessionState.sessionExpiresAt, user, setUser, setIsLoggedIn, setSessionExpiresAt]);
 
   // Handle app state changes to invalidate queries and ensure fresh data
   useEffect(() => {
@@ -251,10 +231,10 @@ function RootLayoutNav() {
         backgroundTime.current = Date.now();
         console.log('🔄 App going to background, invalidating queries...');
         client.invalidateQueries({
-          queryKey: ['/addresses/my-jango-addresses'],
+          queryKey: ['/addresses/my-jango-addresses-infinite'],
         });
         client.invalidateQueries({
-          queryKey: ['/addresses/my-alias-addresses'],
+          queryKey: ['/addresses/my-alias-addresses-infinite'],
         });
         client.invalidateQueries({
           queryKey: ['/addresses/my-home-address'],
@@ -326,19 +306,29 @@ function RootLayoutNav() {
     };
   }, []);
 
-  const theme = {
-    // ...DefaultTheme,
+  const theme = useMemo(() => ({
     dark: false,
     colors: {
       ...DefaultTheme.colors,
-      text: Colors.dark['0'], // Override text color globally
+      text: Colors.dark['0'],
     },
-  };
+  }), []);
+
+  const appContextValue = useMemo(() => ({ user, lang, setUser, setLang }), [user, lang, setUser, setLang]);
+  const sessionContextValue = useMemo(() => ({
+    isLoggedIn: sessionState.isLoggedIn,
+    isAuthLoading: sessionState.isAuthLoading,
+    sessionExpiresAt: sessionState.sessionExpiresAt,
+    setIsLoggedIn,
+    setSessionExpiresAt,
+    setAuthLoading,
+  }), [sessionState, setIsLoggedIn, setSessionExpiresAt, setAuthLoading]);
 
   return (
     <QueryClientProvider client={client}>
       {Platform.OS === 'web' ? <ReactQueryDevToolsOnWeb queryClient={client} /> : null}
-      <Context.Provider value={{ ...contextInfo, ...contextSetters }}>
+      <Context.Provider value={appContextValue}>
+        <SessionContext.Provider value={sessionContextValue}>
         <BottomSheetProvider>
         <GestureHandlerRootView style={defaultStyles.flex}>
           <PaperProvider theme={theme}>
@@ -385,6 +375,7 @@ function RootLayoutNav() {
           </PaperProvider>
         </GestureHandlerRootView>
         </BottomSheetProvider>
+        </SessionContext.Provider>
       </Context.Provider>
     </QueryClientProvider>
   );

@@ -9,10 +9,11 @@
  * Phase 5: Map visualization — offline first.
  */
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { ShapeSource, FillLayer, LineLayer } from '@maplibre/maplibre-react-native';
-import { useMapStore } from '@/lib/store/mapStore';
+import { useUserLocationStore } from '@/lib/store/userLocationStore';
 import { getGridBounds, gridBoundsToPolygon, isSameGridCell } from '@/utils/plusCodeGrid';
+import { useAnimationClock } from '@/hooks/useAnimationClock';
 
 const GPS_BREADCRUMB_FILL_COLOR = '#8080FF';
 const GPS_BREADCRUMB_FILL_OPACITY = 0.4;
@@ -31,9 +32,11 @@ export function GPSLocationLayer({
   showOnlyWhenRestrictedAndOffset = false,
   isLocationRestricted = false,
 }: GPSLocationLayerProps) {
-  const userLocation = useMapStore((s) => s.userLocation);
-  const activeLocation = useMapStore((s) => s.activeLocation);
-  const [gpsFillOpacity, setGpsFillOpacity] = useState(GPS_BREADCRUMB_FILL_OPACITY);
+  const userLocation = useUserLocationStore((s) => s.userLocation);
+  const activeLocation = useUserLocationStore((s) => s.activeLocation);
+  const { pulsePhase } = useAnimationClock();
+
+  const gpsFillOpacity = GPS_BREADCRUMB_FILL_OPACITY + 0.15 * Math.sin(pulsePhase * 2 * Math.PI);
 
   const shouldShow = useMemo(() => {
     if (!userLocation) return false;
@@ -67,21 +70,6 @@ export function GPSLocationLayer({
       ],
     };
   }, [shouldShow, userLocation]);
-
-  // Pulsing animation for GPS location when it differs from active location
-  useEffect(() => {
-    if (!shouldShow) return;
-
-    let fillPhase = 0;
-    const fillMs = 80;
-
-    const interval = setInterval(() => {
-      fillPhase = (fillPhase + 0.04) % 1;
-      setGpsFillOpacity(GPS_BREADCRUMB_FILL_OPACITY + 0.15 * Math.sin(fillPhase * 2 * Math.PI));
-    }, fillMs);
-
-    return () => clearInterval(interval);
-  }, [shouldShow]);
 
   if (!geoJSON) return null;
 

@@ -7,15 +7,15 @@
  * Phase 5: Map visualization — offline first.
  */
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { ShapeSource, LineLayer } from '@maplibre/maplibre-react-native';
 import { PointAnnotation } from '@maplibre/maplibre-react-native';
-import { useMapStore } from '@/lib/store/mapStore';
+import { useStreetSelectionStore } from '@/lib/store/streetSelectionStore';
+import { useAnimationClock } from '@/hooks/useAnimationClock';
 import { ACTIVE_STREET_COLOR, START_MARKER_COLOR, END_MARKER_COLOR, LOCK_INDICATOR_COLOR } from '@/lib/streetColors';
 
 const STREET_WIDTH = 4;
-const MARCH_ANT_MS = 1000;
 
 /** Convert [lat, lon][] (resolved geometry) to GeoJSON LineString coordinates [lon, lat][] */
 function geometryToGeoJSONCoords(geometry: [number, number][]): [number, number][] {
@@ -23,20 +23,12 @@ function geometryToGeoJSONCoords(geometry: [number, number][]): [number, number]
 }
 
 export function ActiveStreetLayer() {
-  const resolvedStreetGeometry = useMapStore((s) => s.resolvedStreetGeometry);
-  const activeStreetDirectionLock = useMapStore((s) => s.activeStreetDirectionLock);
-  const [dashPhase, setDashPhase] = useState(0);
+  const resolvedStreetGeometry = useStreetSelectionStore((s) => s.resolvedStreetGeometry);
+  const activeStreetDirectionLock = useStreetSelectionStore((s) => s.activeStreetDirectionLock);
+  const { dashPhase } = useAnimationClock();
 
   const isLocked = activeStreetDirectionLock?.directionState === 'locked';
   const lockedDirection = activeStreetDirectionLock?.lockedDirection ?? null;
-
-  useEffect(() => {
-    if (!resolvedStreetGeometry?.geometry?.length) return;
-    const interval = setInterval(() => {
-      setDashPhase((p) => (p + 0.05) % 1);
-    }, (MARCH_ANT_MS * 0.05) | 0);
-    return () => clearInterval(interval);
-  }, [resolvedStreetGeometry?.geometry?.length]);
 
   const lineGeoJSON = useMemo(() => {
     if (!resolvedStreetGeometry?.geometry || resolvedStreetGeometry.geometry.length < 2) return null;

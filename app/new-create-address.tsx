@@ -104,7 +104,8 @@ import { useFormResetOnNavigationAndroid } from '@/hooks/useFormResetOnNavigatio
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { sizes } from '@/constants/sizes';
-import { useMapStore } from '@/lib/store/mapStore';
+import { useStreetSelectionStore } from '@/lib/store/streetSelectionStore';
+import { useAddressStore } from '@/lib/store/addressStore';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -305,17 +306,17 @@ export default function NewCreateAddress() {
     country?: string;
     countryCode?: string;
   }>();
-  const calculatedAddress = useMapStore((s) => s.calculatedAddress);
-  const activeStreet = useMapStore((s) => s.activeStreet);
-  const activeStreetDirectionLock = useMapStore((s) => s.activeStreetDirectionLock);
-  const resolvedStreetGeometry = useMapStore((s) => s.resolvedStreetGeometry);
-  const nearbyStreets = useMapStore((s) => s.nearbyStreets);
-  const setActiveStreetData = useMapStore((s) => s.setActiveStreetData);
-  const setResolvedStreetGeometry = useMapStore((s) => s.setResolvedStreetGeometry);
-  const setActiveStreetDirectionLock = useMapStore((s) => s.setActiveStreetDirectionLock);
-  const setActiveStreet = useMapStore((s) => s.setActiveStreet);
-  const setCalculatedAddress = useMapStore((s) => s.setCalculatedAddress);
-  const setPendingCreateStreetGeometry = useMapStore((s) => s.setPendingCreateStreetGeometry);
+  const calculatedAddress = useAddressStore((s) => s.calculatedAddress);
+  const activeStreet = useStreetSelectionStore((s) => s.activeStreet);
+  const activeStreetDirectionLock = useStreetSelectionStore((s) => s.activeStreetDirectionLock);
+  const resolvedStreetGeometry = useStreetSelectionStore((s) => s.resolvedStreetGeometry);
+  const nearbyStreets = useStreetSelectionStore((s) => s.nearbyStreets);
+  const setActiveStreetData = useStreetSelectionStore((s) => s.setActiveStreetData);
+  const setResolvedStreetGeometry = useStreetSelectionStore((s) => s.setResolvedStreetGeometry);
+  const setActiveStreetDirectionLock = useStreetSelectionStore((s) => s.setActiveStreetDirectionLock);
+  const setActiveStreet = useStreetSelectionStore((s) => s.setActiveStreet);
+  const setCalculatedAddress = useAddressStore((s) => s.setCalculatedAddress);
+  const setPendingCreateStreetGeometry = useAddressStore((s) => s.setPendingCreateStreetGeometry);
   const prefilledFromMapStoreRef = useRef(false);
   /** When opened from map tab: capture store's resolvedStreetGeometry once so marching ants stay on location-context street even if store is updated later */
   const fromMapStreetGeometryRef = useRef<typeof resolvedStreetGeometry>(null);
@@ -495,7 +496,7 @@ export default function NewCreateAddress() {
               latitude: snapped.lat,
               longitude: snapped.lng,
             });
-            what3words = w3wResponse?.words;
+            what3words = w3wResponse?.words || undefined;
           } catch (e) {
             console.warn('Error getting what3words:', e);
           }
@@ -666,7 +667,7 @@ export default function NewCreateAddress() {
               latitude: snapped.lat,
               longitude: snapped.lng,
             });
-            what3words = w3wResponse?.words;
+            what3words = w3wResponse?.words || undefined;
           } catch (e) {
             console.warn('Error getting what3words:', e);
           }
@@ -679,11 +680,7 @@ export default function NewCreateAddress() {
           const decodedBounds = decodePlusCodeToBounds(plusCode);
           const bounds =
             decodedBounds ?? getGridCellBounds(snapped.lat, snapped.lng);
-          finalCoords = {
-            ...snappedCoords,
-            latitude: bounds.centerLat,
-            longitude: bounds.centerLng,
-          };
+
           setSelectedLocation({
             latitude: bounds.centerLat,
             longitude: bounds.centerLng,
@@ -739,7 +736,7 @@ export default function NewCreateAddress() {
               latitude: snapped.lat,
               longitude: snapped.lng,
             });
-            what3words2 = w3wResponse?.words;
+            what3words2 = w3wResponse?.words || undefined;
           } catch (e) {
             console.warn('Error getting what3words:', e);
           }
@@ -875,7 +872,7 @@ export default function NewCreateAddress() {
   useEffect(() => {
     if (!fromMap) return;
     if (fromMapAntsGeometrySetRef.current) return;
-    const pending = useMapStore.getState().pendingCreateStreetGeometry;
+    const pending = useAddressStore.getState().pendingCreateStreetGeometry;
     if (pending?.geometry?.length) {
       fromMapAntsGeometrySetRef.current = true;
       setFromMapAntsGeometry({ ...pending });
@@ -996,7 +993,7 @@ export default function NewCreateAddress() {
           }
           if (streetAddress.houseNumber != null) setHouseNumber(streetAddress.houseNumber.toString());
           else if (streetNameFromResult && !fromMap) setHouseNumber('1');
-          else if (streetNameFromResult && fromMap) setHouseNumber(useMapStore.getState().calculatedAddress?.houseNumber?.toString() ?? '1');
+          else if (streetNameFromResult && fromMap) setHouseNumber(useAddressStore.getState().calculatedAddress?.houseNumber?.toString() ?? '1');
           else setHouseNumber('');
           if (streetAddress.streetKey) setStreetKeyFromGeocode(streetAddress.streetKey);
 
@@ -1013,7 +1010,7 @@ export default function NewCreateAddress() {
             setDistanceToStreet(streetAddress.activeStreet.distance ?? null);
           } else if (fromMap && resolvedStreetGeometry?.geometry?.length) {
             setActiveStreetGeometry(resolvedStreetGeometry.geometry);
-            setDistanceToStreet(useMapStore.getState().calculatedAddress?.distanceToStreet ?? null);
+            setDistanceToStreet(useAddressStore.getState().calculatedAddress?.distanceToStreet ?? null);
           } else if (!fromMap) {
             setActiveStreetGeometry([]);
             setDistanceToStreet(streetAddress.street?.distance ?? null);
@@ -1031,8 +1028,8 @@ export default function NewCreateAddress() {
 
           // Original API values for edit detection (dual-address creation when user edits)
           if (fromMap) {
-            const storeStreet = useMapStore.getState().activeStreet?.name;
-            const storeNeighborhood = useMapStore.getState().calculatedAddress?.osmData?.neighborhood;
+            const storeStreet = useStreetSelectionStore.getState().activeStreet?.name;
+            const storeNeighborhood = useAddressStore.getState().calculatedAddress?.osmData?.neighborhood;
             if ((params.street?.trim() ?? storeStreet) && !streetAddress.street?.isUnnamed && !streetAddress.activeStreet?.isUnnamed) {
               setOriginalApiStreetName(params.street?.trim() ?? storeStreet ?? streetNameFromResult ?? null);
             } else {
@@ -1067,7 +1064,7 @@ export default function NewCreateAddress() {
           if (newStreet) setStreet(newStreet);
           if (newRegion) setRegion(newRegion);
           // Fallback has no offline street → no chainage-based number; show default so we don't show "—"
-          const storeAddress = useMapStore.getState().calculatedAddress;
+          const storeAddress = useAddressStore.getState().calculatedAddress;
           setHouseNumber(newStreet ? (storeAddress?.houseNumber?.toString() ?? '1') : '');
           // Original API values for dual-address edit detection (fallback path)
           if (newStreet) setOriginalApiStreetName(newStreet);
@@ -1285,34 +1282,36 @@ export default function NewCreateAddress() {
   };
 
   const handleCreateAddress = async () => {
+    console.log('[CreateAddress] handleCreateAddress fired');
     try {
       setShowValidationError(true);
-      // Require an image before submitting
-      // if (!image?.uri) {
-      //   setError(i18n.t('add-home-address.uploadImageRequired'));
-      //   await delay(3000);
-      //   setError(undefined);
-      //   // return;
-      // }
       if (!checked) {
+        console.log('[CreateAddress] Blocked: checked is false');
         setError(i18n.t('add-home-address.pleaseCheck'));
         await delay(3000);
         setError(undefined);
         return;
       }
 
-      if (extensionError || houseNumberError) return;
-
-      if (
-        !(
-          (addressCategory && houseNumber && street && neighbourhood && region && connection)
-          // && city
-          // && connection
-          //  &&
-          // country
-        )
-      )
+      if (extensionError || houseNumberError) {
+        console.log('[CreateAddress] Blocked: extensionError/houseNumberError', { extensionError, houseNumberError });
         return;
+      }
+
+      const missing: string[] = [];
+      if (!addressCategory) missing.push('addressCategory');
+      if (!houseNumber) missing.push('houseNumber');
+      if (!street) missing.push('street');
+      if (!neighbourhood) missing.push('neighbourhood');
+      if (!region) missing.push('region');
+      if (!connection) missing.push('connection');
+      if (missing.length > 0) {
+        console.log('[CreateAddress] Blocked: missing required fields', missing);
+        setError(`Please fill all required fields: ${missing.join(', ')}`);
+        await delay(4000);
+        setError(undefined);
+        return;
+      }
 
       let imageUri = '';
 
@@ -1320,10 +1319,12 @@ export default function NewCreateAddress() {
         imageUri = await compressImage();
       }
 
-      // Ensure database is initialized
+      console.log('[CreateAddress] Validation passed, showing loading spinner');
+      setLoading(true);
+
       await initDB();
 
-      // Check if address already exists at this location
+      console.log('[CreateAddress] Checking if address already exists');
       try {
         const addressCheck = await checkLocationAddress({
           lat: coordinates.latitude,
@@ -1355,9 +1356,12 @@ export default function NewCreateAddress() {
           } : undefined,
         });
 
+        console.log('[CreateAddress] checkLocationAddress result:', addressCheck.status);
+
         // If address already exists, warn user
         if (addressCheck.status === 'FOUND') {
           if (addressCheck.jangoMatch) {
+            console.log('[CreateAddress] jangoMatch found, showing alert');
             Alert.alert(
               'Address Already Exists',
               'An address already exists at this location in JanGo. Do you want to continue creating a new address?',
@@ -1366,8 +1370,10 @@ export default function NewCreateAddress() {
                 { text: 'Continue', onPress: () => proceedWithCreation(imageUri) },
               ]
             );
+            setLoading(false);
             return;
           } else if (addressCheck.externalCandidate && addressCheck.externalCandidate.houseNumber) {
+            console.log('[CreateAddress] externalCandidate found, showing alert');
             Alert.alert(
               'Address May Already Exist',
               `An address (${addressCheck.externalCandidate.houseNumber} ${addressCheck.externalCandidate.road}) may already exist at this location according to ${addressCheck.externalCandidate.source === 'online_osm' ? 'OpenStreetMap' : 'offline data'}. Do you want to continue?`,
@@ -1376,14 +1382,15 @@ export default function NewCreateAddress() {
                 { text: 'Continue', onPress: () => proceedWithCreation(imageUri) },
               ]
             );
+            setLoading(false);
             return;
           }
         }
       } catch (checkError) {
-        console.warn('[NewCreateAddress] Address check failed, proceeding anyway:', checkError);
+        console.warn('[CreateAddress] Address check failed, proceeding anyway:', checkError);
       }
 
-      // Proceed with address creation
+      console.log('[CreateAddress] Proceeding with address creation');
       await proceedWithCreation(imageUri);
     } catch (error: any) {
       const rawMessage = error?.message || i18n.t('add-home-address.unknownError');
@@ -1555,10 +1562,10 @@ export default function NewCreateAddress() {
 
       // Invalidate the addresses cache
       queryClient.invalidateQueries({
-        queryKey: ['/addresses/my-jango-addresses'],
+        queryKey: ['/addresses/my-jango-addresses-infinite'],
       });
       queryClient.invalidateQueries({
-        queryKey: ['/addresses/my-alias-addresses'],
+        queryKey: ['/addresses/my-alias-addresses-infinite'],
       });
     } catch (error: any) {
       setLoading(false);
@@ -2090,8 +2097,7 @@ export default function NewCreateAddress() {
                             : conn.English,
                     }))}
                   />
-                  {/* House/plot number and extension inputs – commented out for now */}
-                  {/* <InputComponent
+                  <InputComponent
                     icon={require('@/assets/images/house_number.png')}
                     title1={i18n.t('add-home-address.housePlotNumber')}
                     title2={i18n.t('add-home-address.extension')}
@@ -2124,8 +2130,7 @@ export default function NewCreateAddress() {
                       !!extensionError ||
                       (showValidationError && !houseNumber)
                     }
-                  /> */}
-                  {/* Optional unit type/number could be added here if needed */}
+                  />
                 </View>
               )}
 
@@ -2186,7 +2191,7 @@ export default function NewCreateAddress() {
                         style={[defaultStyles.button, { flex: 1 }]}
                         disabled={loading}
                         loading={loading}
-                        onPress={handleCreateAddress}>
+                        onPress={()=>{console.log("submit pressed"); handleCreateAddress()}}>
                         <Text style={defaultStyles.buttonText}>
                           {i18n.t('add-home-address.submitAddress')}
                         </Text>
@@ -2858,7 +2863,7 @@ const styles = StyleSheet.create({
 // import { useQueryClient } from '@tanstack/react-query';
 // import { useRouter, useLocalSearchParams } from 'expo-router';
 // import { sizes } from '@/constants/sizes';
-// import { useMapStore } from '@/lib/store/mapStore';
+// import { useStreetSelectionStore, useAddressStore } from '@/lib/store';
 // import {
 //   SafeAreaView,
 //   useSafeAreaInsets,
@@ -3037,16 +3042,16 @@ const styles = StyleSheet.create({
 //     country?: string;
 //     countryCode?: string;
 //   }>();
-//   const calculatedAddress = useMapStore((s) => s.calculatedAddress);
-//   const activeStreet = useMapStore((s) => s.activeStreet);
-//   const activeStreetDirectionLock = useMapStore((s) => s.activeStreetDirectionLock);
-//   const resolvedStreetGeometry = useMapStore((s) => s.resolvedStreetGeometry);
-//   const nearbyStreets = useMapStore((s) => s.nearbyStreets);
-//   const setActiveStreetData = useMapStore((s) => s.setActiveStreetData);
-//   const setResolvedStreetGeometry = useMapStore((s) => s.setResolvedStreetGeometry);
-//   const setActiveStreetDirectionLock = useMapStore((s) => s.setActiveStreetDirectionLock);
-//   const setActiveStreet = useMapStore((s) => s.setActiveStreet);
-//   const setCalculatedAddress = useMapStore((s) => s.setCalculatedAddress);
+//   const calculatedAddress = useAddressStore((s) => s.calculatedAddress);
+//   const activeStreet = useStreetSelectionStore((s) => s.activeStreet);
+//   const activeStreetDirectionLock = useStreetSelectionStore((s) => s.activeStreetDirectionLock);
+//   const resolvedStreetGeometry = useStreetSelectionStore((s) => s.resolvedStreetGeometry);
+//   const nearbyStreets = useStreetSelectionStore((s) => s.nearbyStreets);
+//   const setActiveStreetData = useStreetSelectionStore((s) => s.setActiveStreetData);
+//   const setResolvedStreetGeometry = useStreetSelectionStore((s) => s.setResolvedStreetGeometry);
+//   const setActiveStreetDirectionLock = useStreetSelectionStore((s) => s.setActiveStreetDirectionLock);
+//   const setActiveStreet = useStreetSelectionStore((s) => s.setActiveStreet);
+//   const setCalculatedAddress = useAddressStore((s) => s.setCalculatedAddress);
 //   const prefilledFromMapStoreRef = useRef(false);
 //   const mapRef = useRef<any>(null);
 //   const hasInitiallyCenteredRef = useRef(false); // Track if initial centering has happened

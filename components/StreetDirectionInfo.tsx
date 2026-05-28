@@ -10,12 +10,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-paper';
-import { useMapStore } from '@/lib/store/mapStore';
+import { useStreetSelectionStore } from '@/lib/store/streetSelectionStore';
 import { Colors } from '@/constants';
 
 export function StreetDirectionInfo() {
-  const activeStreetDirectionLock = useMapStore((s) => s.activeStreetDirectionLock);
-  const activeStreet = useMapStore((s) => s.activeStreet);
+  const activeStreetDirectionLock = useStreetSelectionStore((s) => s.activeStreetDirectionLock);
+  const activeStreet = useStreetSelectionStore((s) => s.activeStreet);
 
   // Only show when we have an active street context (street or lock)
   if (!activeStreet && !activeStreetDirectionLock) return null;

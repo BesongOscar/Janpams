@@ -9,7 +9,7 @@
 
 import React, { useMemo } from 'react';
 import { ShapeSource, LineLayer } from '@maplibre/maplibre-react-native';
-import { useMapStore } from '@/lib/store/mapStore';
+import { useStreetSelectionStore } from '@/lib/store/streetSelectionStore';
 import { ALTERNATE_STREET_COLORS } from '@/lib/streetColors';
 import type { ActiveStreetData } from '@/lib/streetSelection';
 
@@ -32,8 +32,8 @@ function lineToGeoJSON(coords: [number, number][]): GeoJSON.FeatureCollection | 
 }
 
 export function NearbyStreetsLayer() {
-  const nearbyStreets = useMapStore((s) => s.nearbyStreets);
-  const activeStreetData = useMapStore((s) => s.activeStreetData);
+  const nearbyStreets = useStreetSelectionStore((s) => s.nearbyStreets);
+  const activeStreetData = useStreetSelectionStore((s) => s.activeStreetData);
 
   const alternateStreets = useMemo(() => {
     const filtered = nearbyStreets.filter(

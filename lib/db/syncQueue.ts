@@ -20,7 +20,7 @@ export async function addToSyncQueue(item: Omit<SyncQueueItem, 'id' | 'created_a
   try {
     const db = await getDB();
     
-    const id = crypto.randomUUID();
+    const id = randomUUID();
     const syncItem: SyncQueueItem = {
       id,
       ...item,
@@ -58,7 +58,7 @@ export async function addToSyncQueue(item: Omit<SyncQueueItem, 'id' | 'created_a
       await initDB();
       // Retry the operation
       const db = await getDB();
-      const id = crypto.randomUUID();
+      const id = randomUUID();
       const syncItem: SyncQueueItem = {
         id,
         ...item,

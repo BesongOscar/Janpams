@@ -19,6 +19,7 @@ export function useSync() {
     status: 'idle',
     lastSync: null,
     pendingCount: 0,
+    searchIndexStatus: 'idle',
     isInitialized: false,
     error: null,
   });
@@ -36,11 +37,9 @@ export function useSync() {
           error: null,
         }));
 
-        unsubscribe = SyncManager.subscribe(async (newState) => {
-          const pendingCount = await SyncManager.getPendingCount();
+        unsubscribe = SyncManager.subscribe((newState) => {
           setState(prev => ({
             ...newState,
-            pendingCount,
             isInitialized: true,
             error: null,
           }));

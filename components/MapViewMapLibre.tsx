@@ -23,6 +23,7 @@ import {
 import { MAP_TILE_CONFIG } from '@/constants';
 import { getGridBounds, getNeighborGrids, gridBoundsToPolygon, getNineCellBbox, isSameGridCell } from '@/utils/plusCodeGrid';
 import { MarchingAntsBoxOverlay } from '@/components/MarchingAntsBoxOverlay';
+import { useAnimationClock } from '@/hooks/useAnimationClock';
 
 interface MapViewMapLibreProps {
   initialRegion: {
@@ -68,6 +69,29 @@ interface MapViewMapLibreProps {
   currentUserPosition?: { latitude: number; longitude: number } | null;
 }
 
+const OSM_SOURCE = {
+  type: 'raster',
+  tiles: [
+    'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  ],
+  tileSize: 256,
+  minzoom: 0,
+  maxzoom: 19,
+  attribution: '<a href="https://maplibre.org/" target="_blank">MapLibre</a> | <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors</a> | <a href="https://github.com/google/open-location-code" target="_blank">Plus Codes © Google</a>',
+} as const;
+
+const OSM_LAYERS = [
+  {
+    id: 'osm-tiles',
+    type: 'raster',
+    source: 'osm',
+    minzoom: 0,
+    maxzoom: 19,
+  },
+] as const;
+
 /**
  * MapLibre Map Component
  * 
@@ -103,6 +127,7 @@ const MapViewMapLibre = forwardRef<any, MapViewMapLibreProps>(
     const mapRef = useRef<MapViewRef>(null);
     const cameraRef = useRef<CameraRef>(null);
     const [isMapLoaded, setIsMapLoaded] = useState(false);
+    const { pulsePhase } = useAnimationClock();
     // Ref mirrors isMapLoaded so the fallback setTimeout closure reads a live value
     // (state is stale inside setTimeout due to JS closure capture).
     const isMapLoadedRef = useRef(false);
@@ -327,35 +352,13 @@ const MapViewMapLibre = forwardRef<any, MapViewMapLibreProps>(
       : null;
 
     // OSM tile attribution (required to avoid blocking)
-    const osmAttribution =
-      '<a href="https://maplibre.org/" target="_blank">MapLibre</a> | <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors</a> | <a href="https://github.com/google/open-location-code" target="_blank">Plus Codes © Google</a>';
-
     // Build map style object with grid visualization as GeoJSON sources
     const mapStyle = useMemo(() => {
       const sources: any = {
-        osm: {
-          type: 'raster',
-          tiles: [
-            'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          ],
-          tileSize: 256,
-          minzoom: 0,
-          maxzoom: 19,
-          attribution: osmAttribution,
-        },
+        osm: OSM_SOURCE,
       };
 
-      const layers: any[] = [
-        {
-          id: 'osm-tiles',
-          type: 'raster',
-          source: 'osm',
-          minzoom: 0,
-          maxzoom: 19,
-        },
-      ];
+      const layers: any[] = [...OSM_LAYERS];
 
       // Add Plus Code grid raster overlay if enabled
       if (showGrid) {
@@ -389,7 +392,7 @@ const MapViewMapLibre = forwardRef<any, MapViewMapLibreProps>(
         sources,
         layers,
       };
-    }, [showGrid, osmAttribution, initialRegion.latitude, initialRegion.longitude, initialRegion.latitudeDelta]);
+    }, [showGrid, initialRegion.latitude, initialRegion.longitude, initialRegion.latitudeDelta]);
 
     // Memoize grid calculations to prevent re-renders.
     // Draw grid as soon as we have centerLocation and showGrid so the green 3x3 + blue
@@ -494,16 +497,6 @@ const MapViewMapLibre = forwardRef<any, MapViewMapLibreProps>(
     );
 
     // ── Current-user-position: pulsing grid cell + marching ants (navigation / idle "I am here") ──
-    const [userPosFillOpacity, setUserPosFillOpacity] = useState(0.3);
-    useEffect(() => {
-      if (!currentUserPosition) return;
-      let phase = 0;
-      const id = setInterval(() => {
-        phase = (phase + 0.04) % 1;
-        setUserPosFillOpacity(0.3 + 0.18 * Math.sin(phase * 2 * Math.PI));
-      }, 80);
-      return () => clearInterval(id);
-    }, [!!currentUserPosition]);
 
     const userPositionLayer = useMemo(() => {
       if (!currentUserPosition) return null;
@@ -655,7 +648,7 @@ const MapViewMapLibre = forwardRef<any, MapViewMapLibreProps>(
                 id="user-position-fill"
                 style={{
                   fillColor: '#1E90FF',
-                  fillOpacity: userPosFillOpacity,
+                  fillOpacity: 0.3 + 0.18 * Math.sin(pulsePhase * 2 * Math.PI),
                 }}
               />
             </ShapeSource>

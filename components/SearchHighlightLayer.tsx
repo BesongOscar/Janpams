@@ -10,7 +10,7 @@
 
 import React, { useMemo } from 'react';
 import { ShapeSource, LineLayer } from '@maplibre/maplibre-react-native';
-import { useMapStore } from '@/lib/store/mapStore';
+import { useAddressStore } from '@/lib/store/addressStore';
 
 const HIGHLIGHT_WIDTH = 5;
 const HIGHLIGHT_COLOR = '#FF6B00'; // Orange highlight
@@ -31,7 +31,7 @@ function lineToGeoJSON(coords: [number, number][]): GeoJSON.FeatureCollection | 
 }
 
 export function SearchHighlightLayer() {
-  const searchHighlight = useMapStore((s) => s.searchHighlight);
+  const searchHighlight = useAddressStore((s) => s.searchHighlight);
 
   const geoJSON = useMemo(() => {
     if (!searchHighlight?.geometry?.length) return null;

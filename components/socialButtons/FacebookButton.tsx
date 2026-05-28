@@ -1,8 +1,9 @@
 import { Image, Text, TouchableOpacity } from 'react-native';
 import React, { useContext } from 'react';
 import { loginStyles } from '@/styles';
-import { Context, ContextType } from '@/app/_layout';
+import { Context, SessionContext } from '@/app/_layout';
 import { useSocialLogin } from '@/hooks/users.hooks';
+import { useSocialAuth } from '@/contexts/SocialAuthContext';
 import { snackbarToast } from '@/utils/toastHelpter';
 import {
   delay,
@@ -15,8 +16,10 @@ import i18n from '@/i18n';
 import { AccessToken, LoginManager, Profile } from 'react-native-fbsdk-next';
 
 const FacebookButton = () => {
-  const { setUser, lang, setIsLoggedIn, setSocialLoading, setSocialError } =
-    useContext(Context) as ContextType;
+  const { setUser, lang } = useContext(Context)!;
+  const sessionCtx = useContext(SessionContext);
+  const { setSocialLoading, setSocialError } = useSocialAuth();
+  const setIsLoggedIn = sessionCtx?.setIsLoggedIn ?? (() => {});
 
   const { mutateAsync: socialLogin } = useSocialLogin(
     lang,

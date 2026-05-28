@@ -4,7 +4,7 @@
  * Entry point for address-at-location flow: performLocationCheck using
  * addressServices.checkLocation (local DB + resolveStreetAddress).
  * Entry point (e.g. create address from map) uses active street and
- * calculated address from store/hook (useMapStore, useActiveStreet).
+ * calculated address from store/hook (useAddressStore, useActiveStreet).
  *
  * Phase 8: Address services & hooks — offline first.
  */

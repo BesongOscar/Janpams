@@ -36,13 +36,11 @@ export function useOffline() {
         await SyncManager.init();
         setIsInitialized(true);
 
-        const pendingCount = await SyncManager.getPendingCount();
         const initialState = await SyncManager.getStateAsync();
-        setState({ ...initialState, pendingCount });
+        setState(initialState);
 
-        unsubscribe = SyncManager.subscribe(async (newState) => {
-          const pendingCount = await SyncManager.getPendingCount();
-          setState({ ...newState, pendingCount });
+        unsubscribe = SyncManager.subscribe((newState) => {
+          setState(newState);
         });
       } catch (error) {
         console.log('[useOffline] Failed to initialize SyncManager:', error);

@@ -34,7 +34,8 @@ import { SyncManager } from './syncManager';
 export async function checkLocation(
   lat: number,
   lng: number,
-  isOnline: boolean = false
+  isOnline: boolean = false,
+  onlineReverseGeocode?: (lat: number, lng: number) => Promise<any | null>
 ): Promise<AddressCheckResult> {
   return checkLocationAddress({
     lat,
@@ -43,7 +44,7 @@ export async function checkLocation(
     offlineReverseGeocode: async (lat, lng) => {
       const result = await resolveStreetAddress(lat, lng);
       return {
-        houseNumber: null, // Auto-calculated number is for create flow only, not check flow (web parity)
+        houseNumber: null,
         road: result.street?.name ?? null,
         streetName: result.street?.name ?? null,
         displayAddress: result.street?.name ?? null,
@@ -52,7 +53,7 @@ export async function checkLocation(
         region: result.admin.region ?? null,
         region_code: result.admin.region_code ?? null,
         country: result.admin.country ?? null,
-        country_code: result.admin.country_code ?? 'CM',
+        country_code: result.admin.country_code ?? null,
         osmWayId: result.street?.segment_id ?? null,
         osmData: {
           businessName: null,
@@ -60,12 +61,12 @@ export async function checkLocation(
           city: result.admin.city ?? '',
           region: result.admin.region ?? '',
           region_code: result.admin.region_code ?? null,
-          country: result.admin.country ?? 'CM',
-          country_code: result.admin.country_code ?? 'CM',
+          country: result.admin.country ?? null,
+          country_code: result.admin.country_code ?? null,
         },
       };
     },
-    onlineReverseGeocode: async () => null,
+    onlineReverseGeocode: onlineReverseGeocode ?? (async () => null),
   });
 }
 

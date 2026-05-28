@@ -78,7 +78,9 @@ import { offlineReverseGeocode } from '@/lib/geocoding/reverseGeocode';
 import { getAddressComponentsSync } from '@/lib/geocoding/getAddressComponents';
 import { useActiveStreet, syncMapStoreFromResolveResult } from '@/hooks/useActiveStreet';
 import { useEffectiveRole } from '@/hooks/useEffectiveRole';
-import { useMapStore, type MapState } from '@/lib/store/mapStore';
+import { useUserLocationStore } from '@/lib/store/userLocationStore';
+import { useStreetSelectionStore } from '@/lib/store/streetSelectionStore';
+import { useAddressStore } from '@/lib/store/addressStore';
 import { checkLocation, offlineResultToCheckResponse } from '@/lib/addressServices';
 import { isClickInNeighborCellOnly, isSameGridCell } from '@/utils/plusCodeGrid';
 
@@ -251,6 +253,15 @@ export default function GetAdressScreen() {
     response?: addressesCheckAddressResponse;
   } | null>(null);
   const pressStartTime = useRef<number>(0);
+  const gpsCacheRef = useRef<{
+    snappedLat: number;
+    snappedLng: number;
+    timestamp: number;
+    plusCode: string;
+    what3words?: string;
+  } | null>(null);
+  const dbReadyRef = useRef(false);
+  const packsRef = useRef<{ checked: boolean; hasPacks: boolean }>({ checked: false, hasPacks: false });
 
   // MapLibre native init on the same frame as navigation often triggers Android ANRs ("isn't responding").
   // Defer mounting until after transitions + one frame; iOS unchanged.
@@ -326,16 +337,16 @@ export default function GetAdressScreen() {
   const { updateFromLocation } = useActiveStreet();
   const { isLocationRestricted } = useEffectiveRole(user?.id);
   const { isOnline } = useOffline();
-  const setUserLocation = useMapStore((s: MapState) => s.setUserLocation);
-  const setActiveLocation = useMapStore((s: MapState) => s.setActiveLocation);
-  const setActiveLocationSource = useMapStore((s: MapState) => s.setActiveLocationSource);
-  const setUserLocationAddress = useMapStore((s: MapState) => s.setUserLocationAddress);
-  const setActiveLocationAddress = useMapStore((s: MapState) => s.setActiveLocationAddress);
-  const setBothAddresses = useMapStore((s: MapState) => s.setBothAddresses);
-  const activeLocation = useMapStore((s: MapState) => s.activeLocation);
-  const userLocation = useMapStore((s: MapState) => s.userLocation);
-  const userLocationAddress = useMapStore((s: MapState) => s.userLocationAddress);
-  const calculatedAddress = useMapStore((s: MapState) => s.calculatedAddress);
+  const setUserLocation = useUserLocationStore((s) => s.setUserLocation);
+  const setActiveLocation = useUserLocationStore((s) => s.setActiveLocation);
+  const setActiveLocationSource = useUserLocationStore((s) => s.setActiveLocationSource);
+  const setUserLocationAddress = useAddressStore((s) => s.setUserLocationAddress);
+  const setActiveLocationAddress = useAddressStore((s) => s.setActiveLocationAddress);
+  const setBothAddresses = useAddressStore((s) => s.setBothAddresses);
+  const activeLocation = useUserLocationStore((s) => s.activeLocation);
+  const userLocation = useUserLocationStore((s) => s.userLocation);
+  const userLocationAddress = useAddressStore((s) => s.userLocationAddress);
+  const calculatedAddress = useAddressStore((s) => s.calculatedAddress);
 
   // Task 6: Restore location and sync store from @currentCoordinates when map tab loads (only when we don't have location yet)
   const locationRef = useRef(location);
@@ -438,7 +449,7 @@ export default function GetAdressScreen() {
             found: true,
             response: data,
           });
-          setUserLocationAddress(useMapStore.getState().calculatedAddress ?? null);
+          setUserLocationAddress(useAddressStore.getState().calculatedAddress ?? null);
         }
 
         if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
@@ -490,7 +501,7 @@ export default function GetAdressScreen() {
                 await initDB();
                 const streetResult = await resolveStreetAddress(centerLat, centerLng, 60);
                 syncMapStoreFromResolveResult(streetResult, { latitude: centerLat, longitude: centerLng });
-                setActiveLocationAddress(useMapStore.getState().calculatedAddress ?? null);
+                setActiveLocationAddress(useAddressStore.getState().calculatedAddress ?? null);
               }
             } catch (e) {
               if (__DEV__) console.warn('[Index] Sync map store from API address:', e);
@@ -577,7 +588,7 @@ export default function GetAdressScreen() {
                 await initDB();
                 const streetResult = await resolveStreetAddress(centerLat, centerLng, 60);
                 syncMapStoreFromResolveResult(streetResult, { latitude: centerLat, longitude: centerLng });
-                setActiveLocationAddress(useMapStore.getState().calculatedAddress ?? null);
+                setActiveLocationAddress(useAddressStore.getState().calculatedAddress ?? null);
               }
             } catch (e) {
               if (__DEV__) console.warn('[Index] Sync map store from API nearby address:', e);
@@ -670,8 +681,22 @@ export default function GetAdressScreen() {
         router.replace('/(tabs)');
       }, 20000); // 20 seconds timeout
 
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
+      // --- Cache check: reuse recent GPS fix for same cell ---
+      const cached = gpsCacheRef.current;
+      let snappedLat: number;
+      let snappedLng: number;
+      let plusCode: string;
+      let what3words: string | undefined;
+
+      if (cached && (Date.now() - cached.timestamp) < 30_000) {
+        snappedLat = cached.snappedLat;
+        snappedLng = cached.snappedLng;
+        plusCode = cached.plusCode;
+        what3words = cached.what3words;
+        setIsCheckingAddress(true);
+      } else {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
         if (timeoutId) clearTimeout(timeoutId);
         alert(i18n.t('(tabs).index.pleaseAcceptPermissions'));
         setIsLoading(false);
@@ -724,8 +749,8 @@ export default function GetAdressScreen() {
         currentLocation.coords.latitude,
         currentLocation.coords.longitude,
       );
-      const snappedLat = snapped.lat;
-      const snappedLng = snapped.lng;
+      snappedLat = snapped.lat;
+      snappedLng = snapped.lng;
 
       const snappedCoords = {
         ...currentLocation.coords,
@@ -767,15 +792,15 @@ export default function GetAdressScreen() {
       setActiveLocation({ latitude: snappedLat, longitude: snappedLng });
 
       // Compute Plus Code locally (no API needed); W3W only when online
-      const plusCode = getDisplayCode(snappedLat, snappedLng);
-      let what3words: string | undefined;
+      plusCode = getDisplayCode(snappedLat, snappedLng);
+      what3words = undefined;
       if (isOnline) {
         try {
           const w3wResponse = await getWhat3Words({
             latitude: snappedLat,
             longitude: snappedLng,
           });
-          what3words = w3wResponse?.words;
+          what3words = w3wResponse?.words || undefined;
         } catch (error) {
           console.warn('Error getting what3words:', error);
         }
@@ -818,16 +843,49 @@ export default function GetAdressScreen() {
         }
       }
 
+        // Update GPS cache
+        gpsCacheRef.current = {
+          snappedLat,
+          snappedLng,
+          timestamp: Date.now(),
+          plusCode,
+          what3words,
+        };
+      }
+
       // Show address checking loading state
       setIsCheckingAddress(true);
 
-      // Use same offline-first logic as cell click: if we have offline packs, check
-      // offline first (so first load finds addresses from downloaded region data too).
-      const packs = await getInstalledPacks();
-      const hasPacks = packs.length > 0;
+      if (!packsRef.current.checked) {
+        const packs = await getInstalledPacks();
+        packsRef.current = { checked: true, hasPacks: packs.length > 0 };
+      }
+      const hasPacks = packsRef.current.hasPacks;
       if (hasPacks) {
-        await initDB();
-        const offlineResult = await checkLocation(snappedLat, snappedLng, false);
+        if (!dbReadyRef.current) {
+          await initDB();
+          dbReadyRef.current = true;
+        }
+        const offlineResult = await checkLocation(
+          snappedLat, snappedLng, isOnline,
+          async (lat, lng) => {
+            try {
+              const addr = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng });
+              if (addr?.[0]) {
+                return {
+                  road: addr[0].street || addr[0].name || null,
+                  city: addr[0].city || null,
+                  region: addr[0].region || null,
+                  country: addr[0].country || null,
+                  country_code: addr[0].isoCountryCode || null,
+                };
+              }
+            } catch (e) {
+              console.warn('[checkLocation] Online reverse geocode fallback failed:', e);
+            }
+            return null;
+          }
+        );
         if (offlineResult.status === 'FOUND') {
           const converted = offlineResultToCheckResponse(
             offlineResult,
@@ -849,7 +907,7 @@ export default function GetAdressScreen() {
           });
           const streetResult = await resolveStreetAddress(snappedLat, snappedLng, 60);
           syncMapStoreFromResolveResult(streetResult, { latitude: snappedLat, longitude: snappedLng });
-          setActiveLocationAddress(useMapStore.getState().calculatedAddress ?? null);
+          setActiveLocationAddress(useAddressStore.getState().calculatedAddress ?? null);
         } else {
           setAddressNotFound(true);
           setShowCardMarker(true);
@@ -862,7 +920,7 @@ export default function GetAdressScreen() {
           });
           const streetResult = await resolveStreetAddress(snappedLat, snappedLng, 60);
           syncMapStoreFromResolveResult(streetResult, { latitude: snappedLat, longitude: snappedLng });
-          setActiveLocationAddress(useMapStore.getState().calculatedAddress ?? null);
+          setActiveLocationAddress(useAddressStore.getState().calculatedAddress ?? null);
           if (isOnline) {
             try {
               await checkAddress({ latitude: snappedLat, longitude: snappedLng });
@@ -1195,9 +1253,9 @@ export default function GetAdressScreen() {
     if (!markerCoordinates) return;
     const ac = location?.addressComponents;
     // Hand off location-context street geometry so create screen shows marching ants on same street (e.g. Borstal Street)
-    const geometry = useMapStore.getState().resolvedStreetGeometry;
+    const geometry = useStreetSelectionStore.getState().resolvedStreetGeometry;
     if (geometry?.geometry?.length) {
-      useMapStore.getState().setPendingCreateStreetGeometry(geometry);
+      useAddressStore.getState().setPendingCreateStreetGeometry(geometry);
     }
     router.push({
       pathname: '/new-create-address',
@@ -1283,7 +1341,7 @@ export default function GetAdressScreen() {
     () => {
       snackbarToast('Address saved successfully', 'success', Colors.success);
       queryClient.invalidateQueries({
-        queryKey: ['/addresses/my-alias-addresses'],
+        queryKey: ['/addresses/my-alias-addresses-infinite'],
       });
       setShowAddAlias(false);
     },
@@ -1335,10 +1393,10 @@ export default function GetAdressScreen() {
 
     const { latitude, longitude } = e.nativeEvent.coordinate;
 
-    // Only allow interaction within the current and adjacent grid squares
+    // Re-center grid when clicking outside the current area
     if (!isWithinAllowedGridArea(latitude, longitude)) {
-      console.log('Click ignored: outside allowed grid area');
-      return;
+      console.log('Click outside allowed grid area, re-centering grid');
+      setSelectedGridRectangle(null);
     }
 
     // basic_user: only 8 neighbor cells (not center). Center = user location.
@@ -1484,7 +1542,7 @@ export default function GetAdressScreen() {
       if (isOnline) {
         try {
           const w3wResponse = await getWhat3Words({ latitude: cellLat, longitude: cellLng });
-          what3words = w3wResponse?.words;
+          what3words = w3wResponse?.words || undefined;
         } catch (e) {
           console.warn('Error getting what3words:', e);
         }
@@ -1511,7 +1569,26 @@ export default function GetAdressScreen() {
       // Check address at clicked cell center (offline-first when packs installed, else API)
       if (hasOfflinePacks) {
         await initDB();
-        const offlineResult = await checkLocation(cellLat, cellLng, false);
+        const offlineResult = await checkLocation(
+          cellLat, cellLng, isOnline,
+          async (lat, lng) => {
+            try {
+              const addr = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng });
+              if (addr?.[0]) {
+                return {
+                  road: addr[0].street || addr[0].name || null,
+                  city: addr[0].city || null,
+                  region: addr[0].region || null,
+                  country: addr[0].country || null,
+                  country_code: addr[0].isoCountryCode || null,
+                };
+              }
+            } catch (e) {
+              console.warn('[checkLocation] Online reverse geocode fallback failed:', e);
+            }
+            return null;
+          }
+        );
         if (offlineResult.status === 'FOUND') {
           const converted = offlineResultToCheckResponse(
             offlineResult,
@@ -1526,14 +1603,14 @@ export default function GetAdressScreen() {
           setAddressNotFound(false);
           const streetResult = await resolveStreetAddress(cellLat, cellLng, 60);
           syncMapStoreFromResolveResult(streetResult, { latitude: cellLat, longitude: cellLng });
-          setActiveLocationAddress(useMapStore.getState().calculatedAddress ?? null);
+          setActiveLocationAddress(useAddressStore.getState().calculatedAddress ?? null);
         } else {
           setAddressNotFound(true);
           setShowCardMarker(true);
           setAddressFound(undefined);
           const streetResult = await resolveStreetAddress(cellLat, cellLng, 60);
           syncMapStoreFromResolveResult(streetResult, { latitude: cellLat, longitude: cellLng });
-          setActiveLocationAddress(useMapStore.getState().calculatedAddress ?? null);
+          setActiveLocationAddress(useAddressStore.getState().calculatedAddress ?? null);
         }
         // Cache result at user location for reuse when tapping back to GPS cell (web parity)
         if (location?.coordinates) {
@@ -1558,7 +1635,7 @@ export default function GetAdressScreen() {
                     ) as addressesCheckAddressResponse)
                   : undefined,
             });
-            setUserLocationAddress(useMapStore.getState().calculatedAddress ?? null);
+            setUserLocationAddress(useAddressStore.getState().calculatedAddress ?? null);
           }
         }
       } else {

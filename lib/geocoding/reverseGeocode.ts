@@ -137,9 +137,10 @@ function getBestByType(
  * 
  * Strategy:
  * 1. Resolve admin boundaries (country, region, county)
- * 2. Resolve settlements with scoring
- * 3. Populate separate address fields (don't collapse into city/neighborhood)
- * 4. Let consumer (getAddressComponents) apply priority logic
+ * 2. Skip settlement resolution if no country boundary found
+ * 3. Resolve settlements with scoring
+ * 4. Populate separate address fields (don't collapse into city/neighborhood)
+ * 5. Let consumer (getAddressComponents) apply priority logic
  */
 export async function offlineReverseGeocode(
   lat: number,
@@ -160,7 +161,23 @@ export async function offlineReverseGeocode(
   // Step 1: Resolve admin boundaries
   const adminResult = await findAdminBoundaries(lat, lon, { packIds });
 
-  // Step 2: Resolve settlements with scoring
+  // Step 2: If no country boundary found, skip settlement resolution entirely
+  // to avoid returning settlements from a different region/country
+  if (!adminResult.country) {
+    console.log('[ReverseGeocode] No country boundary found - skipping settlement resolution');
+    const address: OSMStyleAddress = {};
+    const result: OfflineGeocodeResult = {
+      address,
+      confidence: { score: 0, method: 'fallback' },
+      rawAdmin: adminResult,
+      rawSettlements: null as any,
+      bestCandidate: null,
+      nearestPOI: null,
+    };
+    return result;
+  }
+
+  // Step 3: Resolve settlements with scoring
   const settlementOptions: SettlementResolverOptions = {
     packIds,
     maxRadius,
@@ -169,7 +186,7 @@ export async function offlineReverseGeocode(
   };
   const settlementResult = await findSettlements(lat, lon, settlementOptions);
 
-  // Step 3: Build OSM-style address (Nominatim-compatible structure)
+  // Step 4: Build OSM-style address (Nominatim-compatible structure)
   // Populate each field separately - don't collapse
   const address: OSMStyleAddress = {};
 
@@ -232,7 +249,7 @@ export async function offlineReverseGeocode(
     }
   }
 
-  // Step 4: Calculate confidence
+  // Step 5: Calculate confidence
   const bestCandidate = settlementResult.bestContained || settlementResult.bestFallback;
   const confidence = calculateConfidence(bestCandidate);
 

@@ -27,7 +27,8 @@ import {
 import { syncRolesFromBackend } from '@/lib/rolesSync';
 import { getSupabase } from '@/lib/supabase/client';
 import { mapSupabaseUser } from '@/lib/supabase/mapSupabaseUser';
-import { Context, ContextType } from '../_layout';
+import { Context } from '../_layout';
+import { useSocialAuth } from '@/contexts/SocialAuthContext';
 import i18n from '../../i18n';
 import FacebookButton from '@/components/socialButtons/FacebookButton';
 import GoogleButton from '@/components/socialButtons/GoogleButton';
@@ -51,9 +52,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [loginAttempts, setLoginAttemptsState] = useState<LoginAttempt | null>(null);
 
-  const { setUser, lang, socialError, socialLoading } = useContext(
-    Context,
-  ) as ContextType;
+  const { setUser, lang } = useContext(Context)!;
+  const { socialLoading, socialError } = useSocialAuth();
 
   const isLocked =
     loginAttempts != null &&

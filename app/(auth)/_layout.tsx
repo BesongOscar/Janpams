@@ -1,10 +1,11 @@
 import { Stack, useRouter } from 'expo-router';
 import React, { useContext, useEffect } from 'react';
-import { Context, ContextType } from '../_layout';
+import { Context } from '../_layout';
+import { SocialAuthProvider } from '@/contexts/SocialAuthContext';
 
 export default function AuthLayout() {
   const router = useRouter();
-  const { user } = useContext(Context) as ContextType;
+  const { user } = useContext(Context)!;
 
   // If session is restored while on auth (e.g. after slow getSession), go to tabs
   useEffect(() => {
@@ -14,6 +15,7 @@ export default function AuthLayout() {
   }, [user, router]);
 
   return (
+    <SocialAuthProvider>
     <Stack screenOptions={{ headerShown: false }} initialRouteName="index">
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="signup" options={{ headerShown: false }} />
@@ -39,5 +41,6 @@ export default function AuthLayout() {
         options={{ headerShown: false }}
       />
     </Stack>
+    </SocialAuthProvider>
   );
 }

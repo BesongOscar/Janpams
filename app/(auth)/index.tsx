@@ -20,7 +20,8 @@ import { Colors } from '@/constants';
 import { useNavigation, useRouter } from 'expo-router';
 import { useIsFocused } from '@react-navigation/native';
 import i18n from '../../i18n';
-import { Context, ContextType } from '../_layout';
+import { Context, SessionContext } from '../_layout';
+import { useSocialAuth } from '@/contexts/SocialAuthContext';
 import { Loader } from '@/components';
 import GoogleButton from '@/components/socialButtons/GoogleButton';
 import FacebookButton from '@/components/socialButtons/FacebookButton';
@@ -28,9 +29,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Index() {
   const router = useRouter();
-  const { isLoggedIn, socialLoading, socialError } = useContext(
-    Context,
-  ) as ContextType;
+  const sessionCtx = useContext(SessionContext);
+  const { socialLoading, socialError } = useSocialAuth();
+  const isLoggedIn = sessionCtx?.isLoggedIn ?? false;
 
   const navigation = useNavigation();
 

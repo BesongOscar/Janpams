@@ -10,7 +10,6 @@ import {
   formatAddressLines as coreFormatAddressLines,
   formatAddressLinesFromRecord as coreFormatAddressLinesFromRecord,
   formatAddressSingleLine as coreFormatAddressSingleLine,
-  formatSubdivisionPairDefault,
   addressLinesToArray,
   addressLinesToString,
 } from '@janpams/core/address';
@@ -18,19 +17,13 @@ import { normalizeAddressText } from './geocoding/normalization';
 
 export type { AddressLines, AddressDataInput, AddressRecordInput };
 
-/** Subdivision for line4: use core default; when no region use 'SW, CMR' for display. */
-function subdivisionContext(region: string, countryCode: string): string {
-  if (!region.trim()) return 'SW, CMR';
-  return formatSubdivisionPairDefault(region, countryCode);
-}
-
 /**
  * Format address lines for multi-line display (4-line format).
  * App normalizes geocoding text; core does not read DB.
  */
 export function formatAddressLines(
   data: AddressDataInput,
-  defaultCountryCode: string = 'CM'
+  defaultCountryCode?: string
 ): AddressLines {
   const normalized: AddressDataInput = {
     ...data,
@@ -43,7 +36,7 @@ export function formatAddressLines(
         }
       : undefined,
   };
-  return coreFormatAddressLines(normalized, defaultCountryCode, subdivisionContext);
+  return coreFormatAddressLines(normalized, defaultCountryCode);
 }
 
 /**
@@ -51,7 +44,7 @@ export function formatAddressLines(
  */
 export function formatAddressLinesFromRecord(
   address: AddressRecordInput,
-  defaultCountryCode: string = 'CM'
+  defaultCountryCode?: string
 ): AddressLines {
   const normalized: AddressRecordInput = {
     ...address,
@@ -61,7 +54,7 @@ export function formatAddressLinesFromRecord(
     region: address.region ? normalizeAddressText(address.region) || address.region : null,
     country: address.country ? normalizeAddressText(address.country) || address.country : null,
   };
-  return coreFormatAddressLinesFromRecord(normalized, defaultCountryCode, subdivisionContext);
+  return coreFormatAddressLinesFromRecord(normalized, defaultCountryCode);
 }
 
 /**

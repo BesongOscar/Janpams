@@ -46,6 +46,7 @@ class SyncManagerClass {
   private lastSync: string | null = null;
   private searchIndexStatus: SearchIndexStatus = 'idle';
   private searchIndexReadyResolvers: Array<() => void> = [];
+  private pendingCount: number = 0;
   private listeners: Set<(state: SyncManagerState) => void> = new Set();
   private syncInterval: ReturnType<typeof setInterval> | null = null;
   private netInfoUnsubscribe: (() => void) | null = null;
@@ -109,6 +110,9 @@ class SyncManagerClass {
       } catch (e) {
         console.warn('[SyncManager] Valhalla init failed (routing will use fallback):', e);
       }
+
+      // Load initial pending count from DB
+      this.pendingCount = await this.getPendingCount();
 
       // Check initial network state
       const netInfoState = await NetInfo.fetch();
@@ -174,7 +178,7 @@ class SyncManagerClass {
       isOnline: this.isOnline,
       status: this.status,
       lastSync: this.lastSync,
-      pendingCount: 0, // Will be updated async via getPendingCount()
+      pendingCount: this.pendingCount,
       searchIndexStatus: this.searchIndexStatus,
     };
   }
@@ -183,14 +187,7 @@ class SyncManagerClass {
    * Get state with pending count (async)
    */
   async getStateAsync(): Promise<SyncManagerState> {
-    const pendingCount = await this.getPendingCount();
-    return {
-      isOnline: this.isOnline,
-      status: this.status,
-      lastSync: this.lastSync,
-      pendingCount,
-      searchIndexStatus: this.searchIndexStatus,
-    };
+    return this.getState();
   }
 
   /**
@@ -267,7 +264,7 @@ class SyncManagerClass {
    * Create address with sync queue
    */
   async createAddress(data: Omit<Address, 'id' | 'local_id' | 'sync_status' | 'created_at' | 'updated_at'>): Promise<Address> {
-    const localId = crypto.randomUUID();
+    const localId = randomUUID();
     const now = new Date().toISOString();
 
     const record: Address = {
@@ -295,6 +292,7 @@ class SyncManagerClass {
 
     logSuccess(`Address saved successfully to offline DB (sync queued): id=${record.id} ${record.house_number} ${record.street_name}, ${record.neighborhood ?? ''}, ${record.city}`);
 
+    this.pendingCount++;
     this.notifyListeners();
 
     // Try to sync if online
@@ -332,6 +330,7 @@ class SyncManagerClass {
       status: 'pending',
     });
 
+    this.pendingCount++;
     this.notifyListeners();
 
     if (this.isOnline) {
@@ -360,6 +359,7 @@ class SyncManagerClass {
       status: 'pending',
     });
 
+    this.pendingCount++;
     this.notifyListeners();
 
     if (this.isOnline) {
@@ -479,7 +479,7 @@ class SyncManagerClass {
       this.status = 'error';
     }
 
-    // Notify listeners (pending count will be fetched by listeners if needed)
+    this.pendingCount = await this.getPendingCount();
     this.notifyListeners();
   }
 

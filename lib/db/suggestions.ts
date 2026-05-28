@@ -26,8 +26,8 @@ export async function createStreetNameSuggestion(input: {
   suggestedBy?: string;
 }): Promise<StreetNameSuggestionLocal> {
   const db = await getDB();
-  const id = crypto.randomUUID();
-  const localId = crypto.randomUUID();
+  const id = randomUUID();
+  const localId = randomUUID();
   const fullSuggestedName = input.suggestedType
     ? `${input.suggestedName} ${input.suggestedType}`
     : input.suggestedName;
@@ -98,8 +98,8 @@ export async function createNeighborhoodNameSuggestion(input: {
   suggestedBy?: string;
 }): Promise<NeighborhoodNameSuggestionLocal> {
   const db = await getDB();
-  const id = crypto.randomUUID();
-  const localId = crypto.randomUUID();
+  const id = randomUUID();
+  const localId = randomUUID();
   const now = new Date().toISOString();
 
   await db.runAsync(

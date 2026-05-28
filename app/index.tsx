@@ -3,7 +3,7 @@ import { Animated, StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
 import { FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Context, ContextType } from './_layout';
+import { Context, SessionContext } from './_layout';
 import { readData, testBaseURL } from '@/utils';
 import { useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -50,7 +50,9 @@ export default function Index() {
   const [delay, setDelay] = useState(5000);
   const [appIsReady, setAppIsReady] = useState(false);
 
-  const { user, setLang, isAuthLoading } = useContext(Context) as ContextType;
+  const { user, setLang } = useContext(Context)!;
+  const sessionCtx = useContext(SessionContext);
+  const isAuthLoading = sessionCtx?.isAuthLoading ?? true;
 
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity: 0
 

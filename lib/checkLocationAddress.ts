@@ -33,7 +33,8 @@ export async function checkLocationAddress(args: {
 }): Promise<AddressCheckResult> {
   return checkLocationAddressCore({
     ...args,
-    findLocalByPlusCode: async (plusCode10: string) => {
+    onlineReverseGeocode: args.onlineReverseGeocode ?? (async () => null),
+    findLocalJanGoByPlusCode10: async (plusCode10: string) => {
       const record = await getAddressByPlusCode(plusCode10);
       return record ?? null;
     },
